@@ -1,49 +1,38 @@
 import streamlit as st
 import pandas as pd
 import joblib
-import numpy as np
+import json
 
 st.set_page_config(page_title="Customer Churn Prediction")
 
 st.title("Customer Churn Prediction & Risk Analysis")
-
 st.write("Machine Learning Based Customer Churn Prediction")
 
-# Load model
+# Load trained model
 model = joblib.load("models/churn_model.pkl")
 feature_columns = joblib.load("models/feature_columns.pkl")
 
-# Load dataset
-df = pd.read_csv("data/customer_churn.csv")
+# Load input configuration
+with open("input_config.json", "r") as f:
+    config = json.load(f)
 
 st.subheader("Enter Customer Details")
 
-# Remove target and ID
-X = df.drop(columns=["CustomerID", "Churn"], errors="ignore")
-
 customer_data = {}
 
-# Create customer input fields
-for column in X.columns:
+# Customer input fields
+for column, details in config.items():
 
-    numeric_data = pd.to_numeric(
-        X[column], errors="coerce"
-    )
-
-    if numeric_data.notna().all():
-
+    if details["type"] == "number":
         customer_data[column] = st.number_input(
             column,
-            value=float(numeric_data.median())
+            value=float(details["default"])
         )
 
     else:
-
-        options = X[column].dropna().astype(str).unique().tolist()
-
         customer_data[column] = st.selectbox(
             column,
-            options
+            details["options"]
         )
 
 # Prediction
@@ -51,23 +40,14 @@ if st.button("Predict Customer Churn"):
 
     input_df = pd.DataFrame([customer_data])
 
-    # Convert categorical data
-    for column in X.columns:
+    # Convert categorical columns
+    for column, details in config.items():
 
-        if column in input_df.columns:
-
-            if not pd.to_numeric(
-                X[column], errors="coerce"
-            ).notna().all():
-
-                categories = sorted(
-                    X[column].dropna().astype(str).unique()
-                )
-
-                input_df[column] = pd.Categorical(
-                    input_df[column],
-                    categories=categories
-                )
+        if details["type"] == "category":
+            input_df[column] = pd.Categorical(
+                input_df[column],
+                categories=details["options"]
+            )
 
     input_df = pd.get_dummies(
         input_df,
@@ -81,7 +61,6 @@ if st.button("Predict Customer Churn"):
     )
 
     prediction = model.predict(input_df)[0]
-
     probability = model.predict_proba(input_df)[0][1]
 
     st.subheader("Prediction Result")
@@ -99,10 +78,8 @@ if st.button("Predict Customer Churn"):
 
     if probability >= 0.7:
         st.error("High Risk")
-
     elif probability >= 0.4:
         st.warning("Medium Risk")
-
     else:
         st.success("Low Risk")
 
