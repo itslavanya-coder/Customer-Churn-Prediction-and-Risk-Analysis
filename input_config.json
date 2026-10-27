@@ -1,0 +1,53 @@
+{
+  "Age": {
+    "type": "number",
+    "default": 42.0
+  },
+  "Gender": {
+    "type": "category",
+    "options": [
+      "Female",
+      "Male"
+    ]
+  },
+  "Tenure": {
+    "type": "number",
+    "default": 33.0
+  },
+  "Usage Frequency": {
+    "type": "number",
+    "default": 15.0
+  },
+  "Support Calls": {
+    "type": "number",
+    "default": 6.0
+  },
+  "Payment Delay": {
+    "type": "number",
+    "default": 19.0
+  },
+  "Subscription Type": {
+    "type": "category",
+    "options": [
+      "Basic",
+      "Premium",
+      "Standard"
+    ]
+  },
+  "Contract Length": {
+    "type": "category",
+    "options": [
+      "Annual",
+      "Monthly",
+      "Quarterly"
+    ]
+  },
+  "Total Spend": {
+    "type": "number",
+    "default": 534.0
+  },
+  "Last Interaction": {
+    "type": "number",
+    "default": 15.0
+  }
+}
